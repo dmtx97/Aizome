@@ -6,11 +6,13 @@ using Aizome.Core.DataAccess.Entities;
 
 namespace Aizome.Core.DataAccess.Repositories.Postgres
 {
-    public class JeanPgRepository : IJeanRepository
+    public class JeanPgRepository : PostgresRepository<Jean>, IRepository<Jean>
     {
-        public Jean GetById(string id)
+        private readonly AizomeContext _context;
+
+        public JeanPgRepository(AizomeContext context) : base(context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
         public IEnumerable<Jean> GetAll()
@@ -18,17 +20,17 @@ namespace Aizome.Core.DataAccess.Repositories.Postgres
             throw new NotImplementedException();
         }
 
-        public Task Add(Jean jean)
+        public Task Add(Jean obj)
         {
             throw new NotImplementedException();
         }
 
-        public Task Remove(Jean jean)
+        public Task Remove(Jean obj)
         {
             throw new NotImplementedException();
         }
 
-        public Task Update(Jean jean)
+        public Task Update(Jean obj)
         {
             throw new NotImplementedException();
         }

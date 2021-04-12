@@ -5,11 +5,12 @@ using Aizome.Core.DataAccess.Entities;
 
 namespace Aizome.Core.DataAccess.Repositories.Postgres
 {
-    public class BlobPgRepository : IBlobRepository
+    public class BlobPgRepository : PostgresRepository<Blob>, IRepository<Blob>
     {
-        public Blob GetByFileId(string fileId)
+        private readonly AizomeContext _context;
+
+        public BlobPgRepository(AizomeContext context) : base(context)
         {
-            throw new NotImplementedException();
         }
 
         public IEnumerable<Blob> GetAll()
@@ -17,22 +18,17 @@ namespace Aizome.Core.DataAccess.Repositories.Postgres
             throw new NotImplementedException();
         }
 
-        public Task Add(Blob blob)
+        public Task Add(Blob obj)
         {
             throw new NotImplementedException();
         }
 
-        public Task Remove(Blob blob)
+        public Task Remove(Blob obj)
         {
             throw new NotImplementedException();
         }
 
-        public Task Update(Blob blob)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Blob> GetByJeanId(string jeanId, string userName)
+        public Task Update(Blob obj)
         {
             throw new NotImplementedException();
         }

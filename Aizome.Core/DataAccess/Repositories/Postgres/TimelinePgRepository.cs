@@ -5,11 +5,12 @@ using Aizome.Core.DataAccess.Entities;
 
 namespace Aizome.Core.DataAccess.Repositories.Postgres
 {
-    public class TimelinePgRepository : ITimelineRepository
+    public class TimelinePgRepository : PostgresRepository<Timeline>, IRepository<Timeline>
     {
-        public Timeline GetById(Guid id)
+        private readonly AizomeContext _context;
+
+        public TimelinePgRepository(AizomeContext context) : base(context)
         {
-            throw new NotImplementedException();
         }
 
         public IEnumerable<Timeline> GetAll()
@@ -17,17 +18,17 @@ namespace Aizome.Core.DataAccess.Repositories.Postgres
             throw new NotImplementedException();
         }
 
-        public Task Add(Timeline timeline)
+        public Task Add(Timeline obj)
         {
             throw new NotImplementedException();
         }
 
-        public Task Remove(Timeline timeline)
+        public Task Remove(Timeline obj)
         {
             throw new NotImplementedException();
         }
 
-        public Task Update(Timeline timeline)
+        public Task Update(Timeline obj)
         {
             throw new NotImplementedException();
         }

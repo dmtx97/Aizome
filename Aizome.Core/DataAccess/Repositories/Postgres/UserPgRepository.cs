@@ -5,11 +5,12 @@ using Aizome.Core.DataAccess.Entities;
 
 namespace Aizome.Core.DataAccess.Repositories.Postgres
 {
-    public class UserPgRepository : IUserRepository
+    public class UserPgRepository : PostgresRepository<User>, IUserRepository
     {
-        public User GetById(int id)
+        private readonly AizomeContext _context;
+
+        public UserPgRepository(AizomeContext context) : base(context)
         {
-            throw new NotImplementedException();
         }
 
         public IEnumerable<User> GetAll()
@@ -17,19 +18,24 @@ namespace Aizome.Core.DataAccess.Repositories.Postgres
             throw new NotImplementedException();
         }
 
-        public Task Add(User user)
+        public Task Add(User obj)
         {
             throw new NotImplementedException();
         }
 
-        public Task Remove(User user)
+        public Task Remove(User obj)
         {
             throw new NotImplementedException();
         }
 
-        public Task Update(User user)
+        public Task Update(User obj)
         {
             throw new NotImplementedException();
+        }
+
+        public override void RemoveRange(IEnumerable<User> objects)
+        {
+            // do nothing
         }
     }
 }

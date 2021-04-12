@@ -11,6 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Aizome.Core.DataAccess;
+using Aizome.Core.DataAccess.Entities;
+using Aizome.Core.DataAccess.Repositories;
+using Aizome.Core.DataAccess.Repositories.Postgres;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aizome.Core
 {
@@ -32,6 +37,14 @@ namespace Aizome.Core
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Aizome.Core", Version = "v1" });
             });
+
+            services.AddDbContext<AizomeContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("AizomeConnection")));
+
+            services.AddScoped<IRepository<User>, UserPgRepository>();
+            services.AddScoped<IRepository<Jean>, JeanPgRepository>();
+            services.AddScoped<IRepository<Timeline>, TimelinePgRepository>();
+            services.AddScoped<IRepository<Blob>, BlobPgRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
