@@ -41,10 +41,10 @@ namespace Aizome.Core
             services.AddDbContext<AizomeContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("AizomeConnection")));
 
-            services.AddScoped<IRepository<User>, UserPgRepository>();
-            services.AddScoped<IRepository<Jean>, JeanPgRepository>();
-            services.AddScoped<IRepository<Timeline>, TimelinePgRepository>();
-            services.AddScoped<IRepository<Blob>, BlobPgRepository>();
+            services.AddScoped<IUserRepository, UserPgRepository>();
+            services.AddScoped<IJeanRepository, JeanPgRepository>();
+            services.AddScoped<ITimelineRepository, TimelinePgRepository>();
+            services.AddScoped<IBlobRepository, BlobPgRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
