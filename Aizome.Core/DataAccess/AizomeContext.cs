@@ -1,4 +1,5 @@
 ﻿using Aizome.Core.DataAccess.Entities;
+using Azure.Storage.Blobs.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -10,6 +11,15 @@ namespace Aizome.Core.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Jean>()
+                .HasIndex(i => i.JeanId);
+            modelBuilder.Entity<Blob>()
+                .HasIndex(i => i.BlobId);
+            modelBuilder.Entity<Timeline>()
+                .HasIndex(i => i.TimelineId);
+            modelBuilder.Entity<User>()
+                .HasIndex(i => i.UserId);
+
             modelBuilder.Entity<Jean>()
                 .HasOne(x => x.User)
                 .WithMany(j => j.Jeans)
@@ -26,8 +36,9 @@ namespace Aizome.Core.DataAccess
                 .HasForeignKey(k => k.JeanForeignKey);
 
             modelBuilder.Entity<Jean>().Property(p => p.JeanId).UseSerialColumn();
+            modelBuilder.Entity<Blob>().Property(p => p.BlobId).UseSerialColumn();
             modelBuilder.Entity<User>().Property(p => p.UserId).UseSerialColumn();
-            modelBuilder.HasPostgresExtension("uuid-ossp").Entity<Timeline>().Property(p => p.TimelineId).HasDefaultValueSql("uuid_generate_v4()");
+            modelBuilder.Entity<Timeline>().Property(p => p.TimelineId).UseSerialColumn();
             modelBuilder.Entity<Jean>().Property(p => p.DateAdded).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Timeline>().Property(p => p.TimelineDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Timeline>().Property(p => p.Action).HasConversion(new EnumToStringConverter<TimelineActions>());

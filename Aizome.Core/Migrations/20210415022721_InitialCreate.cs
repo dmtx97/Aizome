@@ -8,13 +8,12 @@ namespace Aizome.Core.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:PostgresExtension:uuid-ossp", ",,");
-
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     FirstName = table.Column<string>(type: "text", nullable: true),
@@ -22,34 +21,34 @@ namespace Aizome.Core.Migrations
                     UserName = table.Column<string>(type: "text", nullable: true),
                     PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: true),
                     PasswordHash = table.Column<byte[]>(type: "bytea", nullable: true),
-                    Id = table.Column<int>(type: "integer", nullable: false),
                     DateAdded = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.UserId);
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Jeans",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     JeanId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
                     DateAdded = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    UserForeignKey = table.Column<int>(type: "integer", nullable: false),
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    UserForeignKey = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Jeans", x => x.JeanId);
+                    table.PrimaryKey("PK_Jeans", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Jeans_Users_UserForeignKey",
                         column: x => x.UserForeignKey,
                         principalTable: "Users",
-                        principalColumn: "UserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -57,20 +56,23 @@ namespace Aizome.Core.Migrations
                 name: "Blobs",
                 columns: table => new
                 {
-                    FileId = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BlobId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    FileId = table.Column<string>(type: "text", nullable: true),
                     ContainerName = table.Column<string>(type: "text", nullable: true),
                     JeanForeignKey = table.Column<int>(type: "integer", nullable: false),
-                    Id = table.Column<int>(type: "integer", nullable: false),
                     DateAdded = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Blobs", x => x.FileId);
+                    table.PrimaryKey("PK_Blobs", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Blobs_Jeans_JeanForeignKey",
                         column: x => x.JeanForeignKey,
                         principalTable: "Jeans",
-                        principalColumn: "JeanId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -78,28 +80,40 @@ namespace Aizome.Core.Migrations
                 name: "Timelines",
                 columns: table => new
                 {
-                    TimelineId = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TimelineId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Action = table.Column<string>(type: "text", nullable: false),
                     TimelineDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     JeanForeignKey = table.Column<int>(type: "integer", nullable: false),
-                    Id = table.Column<int>(type: "integer", nullable: false),
                     DateAdded = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Timelines", x => x.TimelineId);
+                    table.PrimaryKey("PK_Timelines", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Timelines_Jeans_JeanForeignKey",
                         column: x => x.JeanForeignKey,
                         principalTable: "Jeans",
-                        principalColumn: "JeanId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Blobs_BlobId",
+                table: "Blobs",
+                column: "BlobId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Blobs_JeanForeignKey",
                 table: "Blobs",
                 column: "JeanForeignKey");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Jeans_JeanId",
+                table: "Jeans",
+                column: "JeanId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Jeans_UserForeignKey",
@@ -110,6 +124,16 @@ namespace Aizome.Core.Migrations
                 name: "IX_Timelines_JeanForeignKey",
                 table: "Timelines",
                 column: "JeanForeignKey");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Timelines_TimelineId",
+                table: "Timelines",
+                column: "TimelineId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_UserId",
+                table: "Users",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

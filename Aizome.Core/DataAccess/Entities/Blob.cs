@@ -5,7 +5,8 @@ namespace Aizome.Core.DataAccess.Entities
 {
     public class Blob : DbEntity
     {
-        [Key]
+        public int BlobId { get; set; }
+
         public string FileId { get; set; }
 
         public string ContainerName { get; set; }

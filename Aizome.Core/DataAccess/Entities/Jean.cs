@@ -13,7 +13,6 @@ namespace Aizome.Core.DataAccess.Entities
             Blobs = new List<Blob>();
         }
 
-        [Key]
         public int JeanId { get; set; }
 
         [Required]

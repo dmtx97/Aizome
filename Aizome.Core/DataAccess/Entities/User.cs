@@ -10,7 +10,6 @@ namespace Aizome.Core.DataAccess.Entities
             Jeans = new List<Jean>();
         }
 
-        [Key]
         public int UserId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

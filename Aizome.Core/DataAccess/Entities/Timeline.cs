@@ -6,8 +6,7 @@ namespace Aizome.Core.DataAccess.Entities
 {
     public class Timeline : DbEntity
     {
-        [Key]
-        public Guid TimelineId { get; set; }
+        public int TimelineId { get; set; }
 
         [Required]
         public TimelineActions Action { get; set; }
