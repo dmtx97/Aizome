@@ -3,15 +3,17 @@ using System;
 using Aizome.Core.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Aizome.Core.Migrations
 {
     [DbContext(typeof(AizomeContext))]
-    partial class AizomeContextModelSnapshot : ModelSnapshot
+    [Migration("20210415025310_removeuniqueids")]
+    partial class removeuniqueids
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,6 +27,9 @@ namespace Aizome.Core.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("BlobId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ContainerName")
                         .HasColumnType("text");
@@ -59,6 +64,9 @@ namespace Aizome.Core.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<int>("JeanId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -97,6 +105,9 @@ namespace Aizome.Core.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<int>("TimelineId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("JeanForeignKey");
@@ -125,6 +136,9 @@ namespace Aizome.Core.Migrations
 
                     b.Property<byte[]>("PasswordSalt")
                         .HasColumnType("bytea");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserName")
                         .HasColumnType("text");

@@ -12,15 +12,6 @@ namespace Aizome.Core.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Jean>()
-                .HasIndex(i => i.JeanId);
-            modelBuilder.Entity<Blob>()
-                .HasIndex(i => i.BlobId);
-            modelBuilder.Entity<Timeline>()
-                .HasIndex(i => i.TimelineId);
-            modelBuilder.Entity<User>()
-                .HasIndex(i => i.UserId);
-
-            modelBuilder.Entity<Jean>()
                 .HasOne(x => x.User)
                 .WithMany(j => j.Jeans)
                 .HasForeignKey(k => k.UserForeignKey);
@@ -35,10 +26,10 @@ namespace Aizome.Core.DataAccess
                 .WithMany(j => j.Blobs)
                 .HasForeignKey(k => k.JeanForeignKey);
 
-            modelBuilder.Entity<Jean>().Property(p => p.JeanId).UseSerialColumn();
-            modelBuilder.Entity<Blob>().Property(p => p.BlobId).UseSerialColumn();
-            modelBuilder.Entity<User>().Property(p => p.UserId).UseSerialColumn();
-            modelBuilder.Entity<Timeline>().Property(p => p.TimelineId).UseSerialColumn();
+            //modelBuilder.Entity<Jean>().Property(p => p.JeanId).UseSerialColumn();
+            //modelBuilder.Entity<Blob>().Property(p => p.BlobId).UseSerialColumn();
+            //modelBuilder.Entity<User>().Property(p => p.UserId).UseSerialColumn();
+            //modelBuilder.Entity<Timeline>().Property(p => p.TimelineId).UseSerialColumn();
             modelBuilder.Entity<Jean>().Property(p => p.DateAdded).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Timeline>().Property(p => p.TimelineDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Timeline>().Property(p => p.Action).HasConversion(new EnumToStringConverter<TimelineActions>());

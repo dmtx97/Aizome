@@ -13,8 +13,6 @@ namespace Aizome.Core.DataAccess.Entities
             Blobs = new List<Blob>();
         }
 
-        public int JeanId { get; set; }
-
         [Required]
         [MaxLength(250)]
         public string Name { get; set; }
