@@ -5,26 +5,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aizome.Core.DataAccess.Repositories.Postgres
 {
-    public  class PostgresRepository<T> :IRepository<T> where T : DbEntity
+    public class PostgresRepository<T> :IRepository<T> where T : DbEntity
     {
         private readonly AizomeContext _context;
-        protected DbSet<T> Set { get; set; }
+        protected DbSet<T> _set { get; set; }
 
         public PostgresRepository(AizomeContext context)
         {
             _context = context;
-            Set = context.Set<T>();
+            _set = context.Set<T>();
         }
 
-        public IEnumerable<T> GetAll() => Set.ToList();
+        public IEnumerable<T> GetAll() => _set.ToList();
 
-        public T GetById(int id) => Set.FirstOrDefault(x => x.Id == id);
+        public T GetById(int id) => _set.FirstOrDefault(x => x.Id == id);
 
-        public void Add(T obj) => Set.Add(obj);
+        public void Add(T obj) => _set.Add(obj);
 
-        public void Remove(int id) => Set.Remove(GetById(id));
+        public void Remove(int id) => _set.Remove(GetById(id));
 
-        public void Update(T obj) => Set.Update(obj);
+        public void Update(T obj) => _set.Update(obj);
 
         public bool SaveChanges() => _context.SaveChanges() >= 0;
     }
