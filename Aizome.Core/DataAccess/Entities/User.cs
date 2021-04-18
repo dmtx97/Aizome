@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Aizome.Core.DataAccess.Entities
 {
@@ -9,11 +8,13 @@ namespace Aizome.Core.DataAccess.Entities
         {
             Jeans = new List<Jean>();
         }
+
         public string FirstName { get; set; }
+        
         public string LastName { get; set; }
+        
         public string UserName { get; set; }
+        
         public ICollection<Jean> Jeans { get; set; }
-        public byte[] PasswordSalt { get; set; }
-        public byte[] PasswordHash { get; set; }
     }
 }

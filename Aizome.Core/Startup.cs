@@ -1,20 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Aizome.Core.DataAccess;
-using Aizome.Core.DataAccess.Entities;
 using Aizome.Core.DataAccess.Repositories;
 using Aizome.Core.DataAccess.Repositories.Postgres;
+using Aizome.Core.Services;
+using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aizome.Core
@@ -28,10 +22,8 @@ namespace Aizome.Core
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -39,15 +31,19 @@ namespace Aizome.Core
             });
 
             services.AddDbContext<AizomeContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("AizomeConnection")));
+                options.UseNpgsql(Configuration["AizomeConnection"]));
+
+            services.AddSingleton(x =>
+                new BlobServiceClient(Configuration["AzureBlobConnectionString"]));
 
             services.AddScoped<IUserRepository, UserPgRepository>();
             services.AddScoped<IJeanRepository, JeanPgRepository>();
             services.AddScoped<ITimelineRepository, TimelinePgRepository>();
             services.AddScoped<IBlobRepository, BlobPgRepository>();
+
+            services.AddScoped<IBlobService, BlobService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
