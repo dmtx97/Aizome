@@ -20,10 +20,9 @@ namespace Aizome.Core.Services
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task<Response> CreateBlobContainer(string containerName) => (await _blobServiceClient.CreateBlobContainerAsync(containerName)).GetRawResponse();
+        public async Task<bool> CreateBlobContainer(string containerName) => await Execute(() => _blobServiceClient.CreateBlobContainerAsync(containerName));
+        public async Task<bool> DeleteBlobContainer(string containerName) => await Execute(() => _blobServiceClient.DeleteBlobContainerAsync(containerName));
 
-        public async Task<Response> DeleteBlobContainer(string containerName) => (await _blobServiceClient.DeleteBlobContainerAsync(containerName));
-        
         public async Task<BlobContentDTO> GetBlob(string fileName)
         {
             var blob = _blobRepository.GetBlobByFileId(fileName);
@@ -58,8 +57,8 @@ namespace Aizome.Core.Services
 
             try
             {
-                if (clients.blobClient != null && clients.blobClient.UploadAsync(stream, new BlobHttpHeaders() {ContentType = "image/jpg"}).Result
-                    .GetRawResponse().Status == 200)
+                if (clients.blobClient != null && await Execute(() =>
+                    clients.blobClient.UploadAsync(stream, new BlobHttpHeaders() {ContentType = "image/jpg"})))
                 {
                     await _blobRepository.AddBlobToJean(fileName, containerName, jeanId);
 
@@ -78,36 +77,33 @@ namespace Aizome.Core.Services
         {
             var blob = _blobRepository.GetBlobByFileId(fileName);
 
-            if (blob != null)
+            if (blob == null) return false;
+            
+            var clients = await GetBlobClients(blob.ContainerName, fileName);
+
+            try
             {
-                var clients = await GetBlobClients(blob.ContainerName, fileName);
-
-                try
+                if (await Execute(() => clients.blobClient.DeleteAsync()))
                 {
-                    if ((await clients.blobClient.DeleteAsync()).Status == 200)
-                    {
-                        _blobRepository.Remove(blob.Id);
+                    _blobRepository.Remove(blob.Id);
 
-                        return true;
-                    }
+                    return true;
                 }
-                catch (RequestFailedException e)
-                {
-                    Debug.WriteLine("Unexpected error trying to delete {0} : {1}", fileName, e);
-                }
+            }
+            catch (RequestFailedException e)
+            {
+                Debug.WriteLine("Unexpected error trying to delete {0} : {1}", fileName, e);
             }
 
             return false;
         }
 
-        // TODO : Will there be any instances where I do need to use the BlobContainerClient?
-        public async Task<(BlobContainerClient blobContainerClient, BlobClient blobClient)> GetBlobClients(
-            string containerName, string fileName)
+        public async Task<(BlobContainerClient blobContainerClient, BlobClient blobClient)> GetBlobClients(string containerName, string fileName)
         {
             try
             {
                 var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-                
+
                 if (await containerClient.ExistsAsync())
                 {
                     var blobClient = containerClient.GetBlobClient(fileName);
@@ -126,11 +122,26 @@ namespace Aizome.Core.Services
             return (null, null);
         }
 
-        public async Task<bool> Execute(Func<string, Task<Response>> containerAction, string containerName)
+        private static async Task<bool> Execute<T>(Func<Task<Response<T>>> containerFunc)
         {
             try
             {
-                return (await containerAction(containerName)).Status == 200;
+                return (await containerFunc()).GetRawResponse().Status == 200;
+            }
+
+            catch (RequestFailedException e)
+            {
+                Debug.WriteLine("HTTP error code {0}: {1}", e.Status, e.ErrorCode);
+            }
+
+            return false;
+        }
+
+        private static async Task<bool> Execute(Func<Task<Response>> containerFunc)
+        {
+            try
+            {
+                return (await containerFunc()).Status == 200;
             }
 
             catch (RequestFailedException e)
@@ -144,16 +155,14 @@ namespace Aizome.Core.Services
 
     public interface IBlobService
     {
-        public Task<Response> CreateBlobContainer(string containerName);
+        public Task<bool> CreateBlobContainer(string containerName);
 
-        public Task<Response> DeleteBlobContainer(string containerName);
+        public Task<bool> DeleteBlobContainer(string containerName);
 
         public Task<BlobContentDTO> GetBlob(string fileName);
 
         public Task<bool> UploadBlob(string base64String, string containerName, int jeanId);
 
         public Task<bool> DeleteBlob(string fileName);
-
-        public Task<bool> Execute(Func<string, Task<Response>> containerAction, string containerName);
     }
 }
