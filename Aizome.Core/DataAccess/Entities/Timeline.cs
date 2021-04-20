@@ -19,5 +19,12 @@ namespace Aizome.Core.DataAccess.Entities
 
     public enum TimelineActions
     {
+        Purchased,
+        Repaired,
+        Sold,
+        Washed,
+        Soaked,
+        Trashed,
+        Tailored,
     }
 }

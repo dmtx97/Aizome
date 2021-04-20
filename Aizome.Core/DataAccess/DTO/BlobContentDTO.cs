@@ -2,8 +2,8 @@
 
 namespace Aizome.Core.DataAccess.DTO
 {
-    public class BlobContentDTO
-    {
+    public class BlobContentDTO : AizomeDTO
+    { 
         public BlobContentDTO(Stream content, string contentType)
         {
             Content = content;

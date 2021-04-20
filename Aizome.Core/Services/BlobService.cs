@@ -21,6 +21,7 @@ namespace Aizome.Core.Services
         }
 
         public async Task<bool> CreateBlobContainer(string containerName) => await Execute(() => _blobServiceClient.CreateBlobContainerAsync(containerName));
+        
         public async Task<bool> DeleteBlobContainer(string containerName) => await Execute(() => _blobServiceClient.DeleteBlobContainerAsync(containerName));
 
         public async Task<BlobContentDTO> GetBlob(string fileName)
@@ -48,12 +49,13 @@ namespace Aizome.Core.Services
         public async Task<bool> UploadBlob(string base64String, string containerName, int jeanId)
         {
             var fileName = Path.GetRandomFileName().Replace(".", "");
+            
+            var clients = await GetBlobClients(containerName, fileName);
          
             var bytes = Convert.FromBase64String(base64String);
             
             var stream = new MemoryStream(bytes);
 
-            var clients = await GetBlobClients(containerName, fileName);
 
             try
             {
@@ -81,18 +83,11 @@ namespace Aizome.Core.Services
             
             var clients = await GetBlobClients(blob.ContainerName, fileName);
 
-            try
+            if (await Execute(() => clients.blobClient.DeleteAsync()))
             {
-                if (await Execute(() => clients.blobClient.DeleteAsync()))
-                {
-                    _blobRepository.Remove(blob.Id);
+                _blobRepository.Remove(blob.Id);
 
-                    return true;
-                }
-            }
-            catch (RequestFailedException e)
-            {
-                Debug.WriteLine("Unexpected error trying to delete {0} : {1}", fileName, e);
+                return true;
             }
 
             return false;
@@ -151,18 +146,5 @@ namespace Aizome.Core.Services
 
             return false;
         }
-    }
-
-    public interface IBlobService
-    {
-        public Task<bool> CreateBlobContainer(string containerName);
-
-        public Task<bool> DeleteBlobContainer(string containerName);
-
-        public Task<BlobContentDTO> GetBlob(string fileName);
-
-        public Task<bool> UploadBlob(string base64String, string containerName, int jeanId);
-
-        public Task<bool> DeleteBlob(string fileName);
     }
 }
