@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Aizome.Core.DataAccess;
+using Aizome.Core.DataAccess.Entities;
 using Aizome.Core.DataAccess.Repositories;
 using Aizome.Core.DataAccess.Repositories.Postgres;
 using Aizome.Core.Services;
@@ -40,6 +41,7 @@ namespace Aizome.Core
             services.AddSingleton(x =>
                 new BlobServiceClient(Configuration["AzureBlobConnectionString"]));
 
+            services.AddScoped<IRepository<DbEntity>, PostgresRepository<DbEntity>>();
             services.AddScoped<IUserRepository, UserPgRepository>();
             services.AddScoped<IJeanRepository, JeanPgRepository>();
             services.AddScoped<ITimelineRepository, TimelinePgRepository>();

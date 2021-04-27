@@ -8,10 +8,12 @@ namespace Aizome.Core.DataAccess.Entities
     {
         [Required]
         public TimelineActions Action { get; set; }
-
+        
         public DateTime TimelineDate { get; set; }
 
         public int JeanForeignKey { get; set; }
+
+        public Timeline PreviousTimeline { get; set; }
 
         [ForeignKey("JeanForeignKey")]
         public Jean Jean { get; set; }
