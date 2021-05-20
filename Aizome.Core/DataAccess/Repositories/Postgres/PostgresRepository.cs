@@ -8,23 +8,23 @@ namespace Aizome.Core.DataAccess.Repositories.Postgres
     public class PostgresRepository<T> :IRepository<T> where T : DbEntity
     {
         private readonly AizomeContext _context;
-        protected DbSet<T> _set { get; set; }
+        protected DbSet<T> Set { get; set; }
 
         public PostgresRepository(AizomeContext context)
         {
             _context = context;
-            _set = context.Set<T>();
+            Set = context.Set<T>();
         }
 
-        public IEnumerable<T> GetAll() => _set.ToList();
+        public IEnumerable<T> GetAll() => Set.ToList();
 
-        public T GetById(int id) => _set.FirstOrDefault(x => x.Id == id);
+        public T GetById(int id) => Set.FirstOrDefault(x => x.Id == id);
 
-        public void Add(T obj) => _set.Add(obj);
+        public void Add(T obj) => Set.Add(obj);
 
-        public void Remove(int id) => _set.Remove(GetById(id));
+        public void Remove(int id) => Set.Remove(GetById(id));
 
-        public void Update(T obj) => _set.Update(obj);
+        public void Update(T obj) => Set.Update(obj);
 
         public bool SaveChanges() => _context.SaveChanges() >= 0;
     }

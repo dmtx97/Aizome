@@ -5,6 +5,7 @@ using Aizome.Core.DataAccess.DTO;
 using Aizome.Core.DataAccess.Entities;
 using Aizome.Core.DataAccess.Repositories;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aizome.Core.Services
 {
@@ -23,20 +24,53 @@ namespace Aizome.Core.Services
             return await Execute(() => _repository.Remove(id));
         }
 
+
+        public async Task<T> Execute(Action<T> modelAction, AizomeDTO dto = null, T entity = null, bool needsConversion = true)
+        {
+            var retries = 0;
+            do
+            {
+                try
+                {
+                    if (needsConversion)
+                    {
+                        var newEntity = ConvertToEntity(dto);
+                        await Task.Run(() => modelAction(newEntity));
+                        return newEntity;
+                    }
+
+                    await Task.Run(() => modelAction(entity));
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Unexpected error saving changes", e);
+                    retries += 1;
+                }
+            } while (retries >= 3);
+
+            return null;
+        }
+
+
         public async Task<bool> Execute(Action modelFunc)
         {
-            try
+            var retries = 0;
+            do
             {
-                await Task.Run(() => (modelFunc));
-                return _repository.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Unexpected error saving changes", e);
-            }
+                try
+                {
+                    await Task.Run(() => (modelFunc));
+                    return _repository.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Unexpected error saving changes", e);
+                    retries += 1;
+                }
+            } while (retries >= 3);
+
             return false;
         }
         protected T ConvertToEntity(AizomeDTO dto) => dto == null ? null : _mapper.Map<T>(dto);
-        protected AizomeDTO ConvertFromEntity(DbEntity entity) =>  entity == null ? null : _mapper.Map<AizomeDTO>(entity);
     }
 }

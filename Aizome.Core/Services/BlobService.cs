@@ -1,28 +1,33 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Aizome.Core.DataAccess.DTO;
+using Aizome.Core.DataAccess.Entities;
 using Aizome.Core.DataAccess.Repositories;
+using AutoMapper;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
 namespace Aizome.Core.Services
 {
-    public class BlobService : IBlobService
+    public class BlobService : AizomeService<Blob>, IBlobService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly IBlobRepository _blobRepository;
-        public BlobService(IBlobRepository blobRepository, BlobServiceClient blobServiceClient)
+        public BlobService(IBlobRepository blobRepository, BlobServiceClient blobServiceClient, IMapper mapper, IRepository<Blob> baseRepository) : base(mapper, baseRepository)
         {
             _blobRepository = blobRepository;
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task<bool> CreateBlobContainer(string containerName) => await Execute(() => _blobServiceClient.CreateBlobContainerAsync(containerName));
+        public async Task<bool> CreateBlobContainer(string containerName) =>
+            await ValidateResponse(() => _blobServiceClient.CreateBlobContainerAsync(containerName));
         
-        public async Task<bool> DeleteBlobContainer(string containerName) => await Execute(() => _blobServiceClient.DeleteBlobContainerAsync(containerName));
+        public async Task<bool> DeleteBlobContainer(string containerName) =>
+            await ValidateResponse(() => _blobServiceClient.DeleteBlobContainerAsync(containerName));
 
         public async Task<BlobContentDTO> GetBlob(string fileName)
         {
@@ -56,23 +61,28 @@ namespace Aizome.Core.Services
             
             var stream = new MemoryStream(bytes);
 
+            var uploadBlob = ValidateResponse(() =>
+                clients.blobClient.UploadAsync(stream, new BlobHttpHeaders() { ContentType = "image/jpg" }));
 
+            var addBlob = Execute(() => _blobRepository.Add(new Blob()
+                {FileId = fileName, ContainerName = containerName, JeanForeignKey = jeanId}));
+
+            // TODO: include exceptions in return if thrown
             try
             {
-                if (clients.blobClient != null && await Execute(() =>
-                    clients.blobClient.UploadAsync(stream, new BlobHttpHeaders() {ContentType = "image/jpg"})))
+                if (clients.blobClient != null && _blobRepository.ValidForeignKey(jeanId))
                 {
-                    await _blobRepository.AddBlobToJean(fileName, containerName, jeanId);
-
-                    return true;
+                    //var tasks = Task.WhenAll(uploadBlob, addBlob);
+                    // TODO : make sure all tasks are completed before returning true
                 }
             }
             catch (RequestFailedException e)
             {
                 Debug.WriteLine("HTTP error code {0}: {1}", e.Status, e.ErrorCode);
+                return false;
             }
-           
-            return false;
+
+            return true;
         }
 
         public async Task<bool> DeleteBlob(string fileName)
@@ -83,11 +93,9 @@ namespace Aizome.Core.Services
             
             var clients = await GetBlobClients(blob.ContainerName, fileName);
 
-            if (await Execute(() => clients.blobClient.DeleteAsync()))
+            if (await ValidateResponse(() => clients.blobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots)))
             {
-                _blobRepository.Remove(blob.Id);
-
-                return true;
+                return await Remove(blob.Id);
             }
 
             return false;
@@ -117,7 +125,7 @@ namespace Aizome.Core.Services
             return (null, null);
         }
 
-        private static async Task<bool> Execute<T>(Func<Task<Response<T>>> containerFunc)
+        private static async Task<bool> ValidateResponse<T>(Func<Task<Response<T>>> containerFunc)
         {
             try
             {
@@ -132,7 +140,7 @@ namespace Aizome.Core.Services
             return false;
         }
 
-        private static async Task<bool> Execute(Func<Task<Response>> containerFunc)
+        private static async Task<bool> ValidateResponse(Func<Task<Response>> containerFunc)
         {
             try
             {

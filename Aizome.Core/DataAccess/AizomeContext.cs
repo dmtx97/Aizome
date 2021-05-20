@@ -11,6 +11,7 @@ namespace Aizome.Core.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // TODO : set .HasForeignKey to k.Jean.Id instead
             modelBuilder.Entity<Jean>()
                 .HasOne(x => x.User)
                 .WithMany(j => j.Jeans)

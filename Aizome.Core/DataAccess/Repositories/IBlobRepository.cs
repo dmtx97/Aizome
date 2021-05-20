@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Aizome.Core.DataAccess.Entities;
+﻿using Aizome.Core.DataAccess.Entities;
 
 namespace Aizome.Core.DataAccess.Repositories
 {
@@ -10,7 +7,6 @@ namespace Aizome.Core.DataAccess.Repositories
         public Blob GetBlobByJeanId(string fileName, int jeanId);
 
         public Blob GetBlobByFileId(string fileId);
-
-        Task AddBlobToJean(string fileName, string containerName, int jeanId);
+        public bool ValidForeignKey(int id);
     }
 }

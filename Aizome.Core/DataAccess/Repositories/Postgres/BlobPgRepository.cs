@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Aizome.Core.DataAccess.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aizome.Core.DataAccess.Repositories.Postgres
 {
@@ -12,22 +12,27 @@ namespace Aizome.Core.DataAccess.Repositories.Postgres
         {
         }
 
-        public async Task AddBlobToJean(string fileName, string containerName, int jeanId)
+        public Blob GetBlobByFileId(string fileId) => Set.FirstOrDefault(x => x.FileId == fileId);
+
+        public IEnumerable<Blob> GetBlobsByJeanId(int jeanId) => Set.Where(x => x.JeanForeignKey == jeanId);
+
+        public Blob GetBlobByJeanId(string fileName, int jeanId) =>
+            GetBlobsByJeanId(jeanId).FirstOrDefault(x => x.FileId == fileName);
+
+        public bool ValidForeignKey(int id)
         {
-            var jeanItem = _set.FirstOrDefault(x => x.JeanForeignKey == jeanId)?.Jean;
-
-            if (jeanItem == null)
-            {
-                throw new ArgumentException(nameof(jeanItem));
-            }
-
-            await _set.AddAsync(new Blob() {FileId = fileName, ContainerName = containerName, JeanForeignKey = jeanId});
+            return Set.FirstOrDefault(x => x.JeanForeignKey == id) != null;
         }
-
-        public Blob GetBlobByFileId(string fileId) => _set.FirstOrDefault(x => x.FileId == fileId);
-
-        public IEnumerable<Blob> GetBlobsByJeanId(int jeanId) => _set.Where(x => x.JeanForeignKey == jeanId);
-
-        public Blob GetBlobByJeanId(string fileName, int jeanId) => GetBlobsByJeanId(jeanId).FirstOrDefault(x => x.FileId == fileName);
     }
+
+
+    public static class RepositoryHelpers
+    {
+        // TODO : maybe set foreignkey as a dbset property?
+        //public static bool ValidForeignKey<T>(this DbSet<T> Set, int id) where T : DbEntity
+        //{
+        //    return Set.FirstOrDefault(x => x.ForeignKey == id) != null
+        //}
+    }
+
 }
