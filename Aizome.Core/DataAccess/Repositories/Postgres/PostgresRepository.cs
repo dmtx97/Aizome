@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aizome.Core.DataAccess.Repositories.Postgres
 {
-    public class PostgresRepository<T> :IRepository<T> where T : DbEntity
+    public class PostgresRepository<T> : IRepository<T> where T : DbEntity
     {
         private readonly AizomeContext _context;
         protected DbSet<T> Set { get; set; }

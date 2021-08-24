@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Aizome.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aizome.Core.Controllers
 {
     public class BlobController : ControllerBase
     {
+        private readonly IBlobService _blobService;
+        public BlobController(IBlobService blobService)
+        {
+            _blobService = blobService;
+        }
     }
 }

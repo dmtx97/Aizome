@@ -27,10 +27,11 @@ namespace Aizome.Core.DataAccess
                 .WithMany(j => j.Blobs)
                 .HasForeignKey(k => k.JeanForeignKey);
 
-            //modelBuilder.Entity<Jean>().Property(p => p.JeanId).UseSerialColumn();
-            //modelBuilder.Entity<Blob>().Property(p => p.BlobId).UseSerialColumn();
-            //modelBuilder.Entity<User>().Property(p => p.UserId).UseSerialColumn();
-            //modelBuilder.Entity<Timeline>().Property(p => p.TimelineId).UseSerialColumn();
+
+            modelBuilder.Entity<Jean>().Property(p => p.Id).UseSerialColumn();
+            modelBuilder.Entity<Blob>().Property(p => p.Id).UseSerialColumn();
+            modelBuilder.Entity<User>().Property(p => p.Id).UseSerialColumn();
+            modelBuilder.Entity<Timeline>().Property(p => p.Id).UseSerialColumn();
             modelBuilder.Entity<Jean>().Property(p => p.DateAdded).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Timeline>().Property(p => p.TimelineDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Timeline>().Property(p => p.Action).HasConversion(new EnumToStringConverter<TimelineActions>());

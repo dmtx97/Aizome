@@ -41,7 +41,12 @@ namespace Aizome.Core
             services.AddSingleton(x =>
                 new BlobServiceClient(Configuration["AzureBlobConnectionString"]));
 
-            services.AddScoped<IRepository<DbEntity>, PostgresRepository<DbEntity>>();
+            // TODO Can I dynamically set all sub-classed instances of DbEntity?
+            services.AddScoped<IRepository<Blob>, PostgresRepository<Blob>>();
+            services.AddScoped<IRepository<User>, PostgresRepository<User>>();
+            services.AddScoped<IRepository<Jean>, PostgresRepository<Jean>>();
+            services.AddScoped<IRepository<Timeline>, PostgresRepository<Timeline>>();
+
             services.AddScoped<IUserRepository, UserPgRepository>();
             services.AddScoped<IJeanRepository, JeanPgRepository>();
             services.AddScoped<ITimelineRepository, TimelinePgRepository>();

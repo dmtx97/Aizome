@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Aizome.Core.DataAccess.DTO;
 using Aizome.Core.DataAccess.Entities;
@@ -64,16 +63,21 @@ namespace Aizome.Core.Services
             var uploadBlob = ValidateResponse(() =>
                 clients.blobClient.UploadAsync(stream, new BlobHttpHeaders() { ContentType = "image/jpg" }));
 
-            var addBlob = Execute(() => _blobRepository.Add(new Blob()
-                {FileId = fileName, ContainerName = containerName, JeanForeignKey = jeanId}));
+            var addBlob = Execute(_blobRepository.Add, null, new Blob()
+            {
+                FileId = fileName,
+                ContainerName = containerName,
+                JeanForeignKey = jeanId
+            }, false);
 
             // TODO: include exceptions in return if thrown
             try
             {
                 if (clients.blobClient != null && _blobRepository.ValidForeignKey(jeanId))
                 {
-                    //var tasks = Task.WhenAll(uploadBlob, addBlob);
-                    // TODO : make sure all tasks are completed before returning true
+                    await Task.WhenAll(uploadBlob, addBlob);
+
+                    return uploadBlob.Result && addBlob.Result != null;
                 }
             }
             catch (RequestFailedException e)
@@ -82,7 +86,7 @@ namespace Aizome.Core.Services
                 return false;
             }
 
-            return true;
+            return false;
         }
 
         public async Task<bool> DeleteBlob(string fileName)

@@ -5,7 +5,6 @@ using Aizome.Core.DataAccess.DTO;
 using Aizome.Core.DataAccess.Entities;
 using Aizome.Core.DataAccess.Repositories;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 
 namespace Aizome.Core.Services
 {
@@ -36,10 +35,12 @@ namespace Aizome.Core.Services
                     {
                         var newEntity = ConvertToEntity(dto);
                         await Task.Run(() => modelAction(newEntity));
-                        return newEntity;
+                        return _repository.SaveChanges() ? newEntity : null;
                     }
 
                     await Task.Run(() => modelAction(entity));
+                    return _repository.SaveChanges() ? entity : null;
+
                 }
                 catch (Exception e)
                 {

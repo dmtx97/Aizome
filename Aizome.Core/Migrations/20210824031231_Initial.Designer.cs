@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Aizome.Core.Migrations
 {
     [DbContext(typeof(AizomeContext))]
-    [Migration("20210415022721_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20210824031231_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,18 +26,10 @@ namespace Aizome.Core.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int>("BlobId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<string>("ContainerName")
                         .HasColumnType("text");
-
-                    b.Property<DateTime?>("DateAdded")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("FileId")
                         .HasColumnType("text");
@@ -46,8 +38,6 @@ namespace Aizome.Core.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BlobId");
 
                     b.HasIndex("JeanForeignKey");
 
@@ -59,7 +49,7 @@ namespace Aizome.Core.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<DateTime>("DateAdded")
                         .ValueGeneratedOnAdd()
@@ -68,11 +58,6 @@ namespace Aizome.Core.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
-
-                    b.Property<int>("JeanId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -84,8 +69,6 @@ namespace Aizome.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("JeanId");
-
                     b.HasIndex("UserForeignKey");
 
                     b.ToTable("Jeans");
@@ -96,16 +79,16 @@ namespace Aizome.Core.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<string>("Action")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("DateAdded")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<int>("JeanForeignKey")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PreviousTimelineId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("TimelineDate")
@@ -113,16 +96,11 @@ namespace Aizome.Core.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<int>("TimelineId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
-
                     b.HasKey("Id");
 
                     b.HasIndex("JeanForeignKey");
 
-                    b.HasIndex("TimelineId");
+                    b.HasIndex("PreviousTimelineId");
 
                     b.ToTable("Timelines");
                 });
@@ -132,10 +110,7 @@ namespace Aizome.Core.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<DateTime?>("DateAdded")
-                        .HasColumnType("timestamp without time zone");
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<string>("FirstName")
                         .HasColumnType("text");
@@ -143,23 +118,10 @@ namespace Aizome.Core.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("text");
 
-                    b.Property<byte[]>("PasswordHash")
-                        .HasColumnType("bytea");
-
-                    b.Property<byte[]>("PasswordSalt")
-                        .HasColumnType("bytea");
-
-                    b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
-
                     b.Property<string>("UserName")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Users");
                 });
@@ -194,7 +156,13 @@ namespace Aizome.Core.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Aizome.Core.DataAccess.Entities.Timeline", "PreviousTimeline")
+                        .WithMany()
+                        .HasForeignKey("PreviousTimelineId");
+
                     b.Navigation("Jean");
+
+                    b.Navigation("PreviousTimeline");
                 });
 
             modelBuilder.Entity("Aizome.Core.DataAccess.Entities.Jean", b =>

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Aizome.Core.DataAccess.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Aizome.Core.DataAccess.Repositories.Postgres
 {
