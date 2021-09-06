@@ -8,11 +8,11 @@ using AutoMapper;
 
 namespace Aizome.Core.Services
 {
-    public abstract class AizomeService<T> where T : DbEntity
+    public abstract class AizomeService<T1, T2> where T1 : DbEntity where T2 : AizomeDTO
     {
         private readonly IMapper _mapper;
-        private readonly IRepository<T> _repository;
-        protected AizomeService(IMapper mapper, IRepository<T> repository)
+        private readonly IRepository<T1> _repository;
+        protected AizomeService(IMapper mapper, IRepository<T1> repository)
         {
             _mapper = mapper;
             _repository = repository;
@@ -24,54 +24,41 @@ namespace Aizome.Core.Services
         }
 
 
-        public async Task<T> Execute(Action<T> modelAction, AizomeDTO dto = null, T entity = null, bool needsConversion = true)
+        public async Task<T2> Execute(Action<T1> modelAction, AizomeDTO dto)
         {
-            var retries = 0;
-            do
+            try
             {
-                try
+                if (dto != null)
                 {
-                    if (needsConversion)
-                    {
-                        var newEntity = ConvertToEntity(dto);
-                        await Task.Run(() => modelAction(newEntity));
-                        return _repository.SaveChanges() ? newEntity : null;
-                    }
-
-                    await Task.Run(() => modelAction(entity));
-                    return _repository.SaveChanges() ? entity : null;
-
+                    var newEntity = ConvertToEntity(dto);
+                    await Task.Run(() => modelAction(newEntity));
+                    return _repository.SaveChanges() ? _mapper.Map<T2>(newEntity) : null;
                 }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("Unexpected error saving changes", e);
-                    retries += 1;
-                }
-            } while (retries >= 3);
+
+                return null;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Unexpected error saving changes", e);
+            }
 
             return null;
         }
 
-
         public async Task<bool> Execute(Action modelFunc)
         {
-            var retries = 0;
-            do
+            try
             {
-                try
-                {
-                    await Task.Run(() => (modelFunc));
-                    return _repository.SaveChanges();
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("Unexpected error saving changes", e);
-                    retries += 1;
-                }
-            } while (retries >= 3);
-
+                await Task.Run(() => (modelFunc));
+                return _repository.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Unexpected error saving changes", e);
+            }
             return false;
         }
-        protected T ConvertToEntity(AizomeDTO dto) => dto == null ? null : _mapper.Map<T>(dto);
+        protected T1 ConvertToEntity(AizomeDTO dto) => dto == null ? null : _mapper.Map<T1>(dto);
+        protected T2 ConvertToDto(T1 entity) => entity == null ? null : _mapper.Map<T2>(entity);
     }
 }

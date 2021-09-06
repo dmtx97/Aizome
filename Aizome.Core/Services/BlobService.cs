@@ -12,7 +12,7 @@ using Azure.Storage.Blobs.Models;
 
 namespace Aizome.Core.Services
 {
-    public class BlobService : AizomeService<Blob>, IBlobService
+    public class BlobService : AizomeService<Blob, BlobDTO>, IBlobService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly IBlobRepository _blobRepository;
@@ -63,12 +63,13 @@ namespace Aizome.Core.Services
             var uploadBlob = ValidateResponse(() =>
                 clients.blobClient.UploadAsync(stream, new BlobHttpHeaders() { ContentType = "image/jpg" }));
 
-            var addBlob = Execute(_blobRepository.Add, null, new Blob()
-            {
-                FileId = fileName,
-                ContainerName = containerName,
-                JeanForeignKey = jeanId
-            }, false);
+            var addBlob = Execute(_blobRepository.Add,
+                new BlobDTO
+                {
+                    FileId = fileName,
+                    ContainerName = containerName,
+                    JeanForeignKey = jeanId
+                });
 
             // TODO: include exceptions in return if thrown
             try

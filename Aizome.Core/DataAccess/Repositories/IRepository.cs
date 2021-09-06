@@ -8,6 +8,7 @@ namespace Aizome.Core.DataAccess.Repositories
         IEnumerable<T> GetAll();
         void Add(T obj);
         T GetById(int id);
+        T GetLatest();
         void Remove(int id);
         void Update(T obj);
         bool SaveChanges();

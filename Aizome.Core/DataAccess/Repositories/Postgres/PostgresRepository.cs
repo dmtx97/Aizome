@@ -18,6 +18,8 @@ namespace Aizome.Core.DataAccess.Repositories.Postgres
 
         public IEnumerable<T> GetAll() => Set.ToList();
 
+        public T GetLatest() => Set.OrderByDescending(x => x.DateAdded).First();
+
         public T GetById(int id) => Set.FirstOrDefault(x => x.Id == id);
 
         public void Add(T obj) => Set.Add(obj);

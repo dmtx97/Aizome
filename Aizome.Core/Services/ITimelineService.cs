@@ -6,9 +6,9 @@ namespace Aizome.Core.Services
 {
     public interface ITimelineService
     {
-        public Task<Timeline> AddTimeline(TimelineCreateDTO timeline);
-        public Task<Timeline> UpdateTimeline(TimelineDTO timeline);
-        public Timeline GetPreviousTimeline(Timeline timeline);
+        public Task<TimelineDTO> AddTimeline(TimelineCreateDTO timeline);
+        public Task<TimelineDTO> UpdateTimeline(TimelineDTO timeline);
+        public TimelineDTO GetPreviousTimeline(Timeline timeline);
         public Task<bool> DeleteTimeline(int timelineId);
 
     }

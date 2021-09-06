@@ -13,4 +13,13 @@ namespace Aizome.Core.DataAccess.DTO
         public Stream Content { get; }
         public string ContentType { get; }
     }
+
+    public class BlobDTO : AizomeDTO
+    {
+        public string FileId { get; set; }
+
+        public string ContainerName { get; set; }
+
+        public int JeanForeignKey { get; set; }
+    }
 }

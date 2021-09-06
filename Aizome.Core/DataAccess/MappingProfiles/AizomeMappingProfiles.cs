@@ -14,6 +14,7 @@ namespace Aizome.Core.DataAccess.MappingProfiles
         {
             CreateMap<Timeline, TimelineDTO>();
             CreateMap<TimelineCreateDTO, Timeline>();
+            CreateMap<Blob, BlobDTO>();
         }
     }
 }

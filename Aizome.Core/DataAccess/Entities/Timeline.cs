@@ -14,6 +14,7 @@ namespace Aizome.Core.DataAccess.Entities
         public int JeanForeignKey { get; set; }
 
         public Timeline PreviousTimeline { get; set; }
+        public Timeline NextTimeline { get; set; }
 
         [ForeignKey("JeanForeignKey")]
         public Jean Jean { get; set; }
